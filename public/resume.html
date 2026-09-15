@@ -225,8 +225,17 @@ function processFile(file) {
   };
   if(file.name.endsWith('.txt')) {
     reader.readAsText(file);
+  } else if(file.name.endsWith('.pdf') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+    // For PDF/Word - can't extract text in browser, ask user to paste
+    resumeText = '';
+    document.getElementById('resume-text').value = '';
+    document.getElementById('resume-text').placeholder = 'Your file was uploaded. For best results, also paste your resume text below or copy-paste from your Word/PDF file.';
+    document.getElementById('file-name').textContent = file.name + ' (please also paste text below for best results)';
+    document.getElementById('file-name').style.display = 'block';
+    dz.classList.add('has-file');
+    return;
   } else {
-    reader.readAsBinaryString(file);
+    reader.readAsText(file);
   }
 }
 
