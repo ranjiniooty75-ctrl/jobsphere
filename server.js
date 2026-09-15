@@ -276,7 +276,7 @@ const server=http.createServer(async(req,res)=>{
       if(!groqKey){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'GROQ_API_KEY not configured. Get a free key at console.groq.com'}));return;}
 
       const groqRes=await new Promise((resolve,reject)=>{
-        const body=JSON.stringify({model:'llama3-8b-8192',max_tokens:2000,messages:[{role:'user',content:prompt}],temperature:0.1});
+        const body=JSON.stringify({model:'openai/gpt-oss-20b',max_tokens:2000,messages:[{role:'user',content:prompt}],temperature:0.1});
         const req2=https.request({hostname:'api.groq.com',path:'/openai/v1/chat/completions',method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body),'Authorization':'Bearer '+groqKey}},res2=>{
           let raw='';res2.on('data',c=>raw+=c);res2.on('end',()=>{try{resolve(JSON.parse(raw));}catch(e){reject(e);}});
         });
