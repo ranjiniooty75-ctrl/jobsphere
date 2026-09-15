@@ -284,9 +284,12 @@ const server=http.createServer(async(req,res)=>{
         req2.write(body);req2.end();
       });
 
+      // Handle Claude API errors
+      if(claudeRes.error){throw new Error('Claude API: '+claudeRes.error.message);}
+      if(!claudeRes.content||!claudeRes.content[0]){throw new Error('Empty response from Claude: '+JSON.stringify(claudeRes).substring(0,200));}
       const text=claudeRes.content[0].text;
       const jsonMatch=text.match(/\{[\s\S]*\}/);
-      if(!jsonMatch)throw new Error('Could not parse AI response');
+      if(!jsonMatch)throw new Error('No JSON in response: '+text.substring(0,200));
       const result=JSON.parse(jsonMatch[0]);
 
       res.writeHead(200,{'Content-Type':'application/json'});
