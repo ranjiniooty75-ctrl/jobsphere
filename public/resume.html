@@ -267,32 +267,22 @@ async function analyze() {
 
     setProgress(40, 'Analyzing your resume with AI…', 'Claude AI is reading your skills and experience');
 
-    // Step 2: Call Claude API to extract profile and score jobs
-    var jobSummaries = allJobs.slice(0,150).map(function(j,i){
-      return i+': '+j.title+' at '+j.company+' ('+j.location+') — tags: '+(j.tags||[]).slice(0,5).join(', ');
-    }).join('\n');
+    // Step 2: Call our server which calls Claude
+    setProgress(40, 'AI is analysing your resume...', 'Matching against all jobs — takes ~15 seconds');
 
-    var prompt = 'You are a job matching expert. Given this resume, extract a profile and score each job 0-100.\n\nRESUME:\n'+finalText.substring(0,2000)+'\n\nJOBS (index: title at company - tags):\n'+jobSummaries+'\n\nRespond with valid JSON only, no markdown:\n{"profile":{"titles":"comma-separated job titles","experience":"X years in field","topSkills":["skill1","skill2","skill3","skill4","skill5","skill6","skill7","skill8"]},"matches":[{"index":0,"score":85,"reasons":["skill1","skill2"]},...]}\n\nOnly include jobs with score >= 50. Max 30 matches. Sort by score descending.';
-
-    var claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+    var matchRes = await fetch('/api/match', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+TOKEN },
+      body: JSON.stringify({ resume: finalText.substring(0,2000), jobs: allJobs.slice(0,150) })
     });
 
-    setProgress(75, 'Scoring jobs…', 'Ranking by match percentage');
+    setProgress(75, 'Scoring jobs...', 'Ranking by match percentage');
 
-    var claudeData = await claudeRes.json();
-    var responseText = claudeData.content[0].text;
-
-    // Parse JSON
-    var jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if(!jsonMatch) throw new Error('Could not parse AI response');
-    var result = JSON.parse(jsonMatch[0]);
+    if(!matchRes.ok) {
+      var errData = await matchRes.json();
+      throw new Error(errData.error || 'Match failed');
+    }
+    var result = await matchRes.json();
 
     setProgress(90, 'Building your matches…', 'Almost done!');
 

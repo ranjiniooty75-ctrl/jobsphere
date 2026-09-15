@@ -253,6 +253,49 @@ const server=http.createServer(async(req,res)=>{
     return;
   }
 
+  // ── /api/match — resume matching via Claude
+  if(pathname==='/api/match'&&req.method==='POST'){
+    if(auth){
+      const token=getToken(req);
+      const access=await auth.checkAccess(token);
+      if(!access.ok){res.writeHead(401,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'unauthorized'}));return;}
+    }
+    try{
+      const body=await parseBody(req);
+      const resumeText=body.resume||'';
+      const jobs=body.jobs||[];
+      if(!resumeText||resumeText.length<50){res.writeHead(400,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Resume text too short'}));return;}
+
+      const jobSummaries=jobs.slice(0,150).map(function(j,i){
+        return i+': '+j.title+' at '+j.company+' ('+j.location+') — tags: '+(j.tags||[]).slice(0,5).join(', ');
+      }).join('\n');
+
+      const prompt='You are a job matching expert. Given this resume, extract a profile and score each job 0-100.\n\nRESUME:\n'+resumeText.substring(0,2000)+'\n\nJOBS (index: title at company - tags):\n'+jobSummaries+'\n\nRespond with valid JSON only, no markdown:\n{"profile":{"titles":"comma-separated job titles","experience":"X years in field","topSkills":["skill1","skill2","skill3","skill4","skill5","skill6","skill7","skill8"]},"matches":[{"index":0,"score":85,"reasons":["skill1","skill2"]},...]}\n\nOnly include jobs with score >= 50. Max 30 matches. Sort by score descending.';
+
+      const claudeRes=await new Promise((resolve,reject)=>{
+        const body=JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]});
+        const req2=https.request({hostname:'api.anthropic.com',path:'/v1/messages',method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body),'x-api-key':process.env.ANTHROPIC_API_KEY||'','anthropic-version':'2023-06-01'}},res2=>{
+          let raw='';res2.on('data',c=>raw+=c);res2.on('end',()=>{try{resolve(JSON.parse(raw));}catch(e){reject(e);}});
+        });
+        req2.setTimeout(30000,()=>{req2.destroy();reject(new Error('Claude timeout'));});
+        req2.on('error',reject);
+        req2.write(body);req2.end();
+      });
+
+      const text=claudeRes.content[0].text;
+      const jsonMatch=text.match(/\{[\s\S]*\}/);
+      if(!jsonMatch)throw new Error('Could not parse AI response');
+      const result=JSON.parse(jsonMatch[0]);
+
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify(result));
+    }catch(e){
+      res.writeHead(500,{'Content-Type':'application/json'});
+      res.end(JSON.stringify({error:e.message}));
+    }
+    return;
+  }
+
   if(pathname==='/api/health'){
     json({ok:true,cached:cache.jobs.length,sources:cache.sources,auth:!!auth,razorpay:!!(RZP_KEY_ID&&RZP_KEY_SECRET)});
     return;
