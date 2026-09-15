@@ -98,15 +98,7 @@ footer p{font-size:12px;color:#5a6278}
     <a href="#" onclick="quickCountry('US')">USA</a>
     <a href="#" onclick="quickCountry('GB')">UK</a>
   </div>
-  <span class="live">Live</span></nav>
-<div id="trial-bar" style="display:none;background:#6c63ff18;border-bottom:1px solid #6c63ff30;padding:8px 2rem;align-items:center;justify-content:space-between;font-size:12px">
-  <span style="color:#8b85ff;font-weight:500"></span>
-  <div style="display:flex;gap:12px;align-items:center">
-    <a href="/payment.html" style="color:#8b85ff;font-weight:600;text-decoration:none;padding:4px 12px;border:1px solid #6c63ff40;border-radius:999px;font-size:11px">Upgrade ₹59/mo</a>
-    <span style="color:#5a6278;cursor:pointer" onclick="logout()">Logout</span>
-  </div>
-</div>
-<div style="display:none">
+  <span class="live">Live</span>
 </nav>
 
 <div class="srch">
@@ -200,32 +192,6 @@ footer p{font-size:12px;color:#5a6278}
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Auth check
-var TOKEN = localStorage.getItem('js_token') || '';
-
-function authHeaders() {
-  return TOKEN ? { 'Authorization': 'Bearer ' + TOKEN } : {};
-}
-
-async function checkAuth() {
-  if (!TOKEN) { window.location.href = '/login.html'; return false; }
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', '/api/auth/check', false); // sync
-  xhr.setRequestHeader('Authorization', 'Bearer ' + TOKEN);
-  xhr.send();
-  try {
-    var d = JSON.parse(xhr.responseText);
-    if (d.reason === 'not_logged_in') { window.location.href = '/login.html'; return false; }
-    if (d.reason === 'expired') { window.location.href = '/payment.html'; return false; }
-    if (d.reason === 'trial') {
-      var bar = document.getElementById('trial-bar');
-      if (bar) { bar.style.display = 'flex'; bar.querySelector('span').textContent = d.daysLeft + ' days left in free trial'; }
-    }
-    if (d.reason === 'no_auth') return true; // auth not configured, allow all
-    return true;
-  } catch(e) { return true; }
-}
-
 var CAT = '', PG = 1;
 
 function esc(s) {
@@ -290,7 +256,6 @@ function doLoad(page) {
 
   var xhr = new XMLHttpRequest();
   xhr.open('GET', '/api/jobs?' + buildParams(PG), true);
-  if (TOKEN) xhr.setRequestHeader('Authorization', 'Bearer ' + TOKEN);
   xhr.onload = function() {
     document.getElementById('ldg').style.display = 'none';
     if (xhr.status === 200) {
@@ -426,12 +391,7 @@ function quickCountry(c) {
 }
 
 // Boot - use XMLHttpRequest, no template literals, no fancy code
-function logout() { localStorage.removeItem('js_token'); window.location.href = '/login.html'; }
-
-window.onload = function() {
-  if (!checkAuth()) return;
-  doLoad(1);
-};
+window.onload = function() { doLoad(1); };
 </script>
 </body>
 </html>

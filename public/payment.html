@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobSphere — Subscribe</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#07090f;color:#f0f2f8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.box{background:#0e1118;border:1px solid #ffffff10;border-radius:20px;padding:2.5rem;width:100%;max-width:460px;text-align:center}
+.logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#f0f2f8;display:flex;align-items:center;gap:8px;margin-bottom:2rem;justify-content:center}
+.ldot{width:7px;height:7px;border-radius:50%;background:#6c63ff;box-shadow:0 0 10px #6c63ff}
+.expired-badge{background:#f8717114;border:1px solid rgba(248,113,113,.3);border-radius:12px;padding:1rem;margin-bottom:1.75rem}
+.expired-badge h3{font-size:16px;font-weight:600;color:#f87171;margin-bottom:4px}
+.expired-badge p{font-size:13px;color:#9ba3b8}
+.price-card{background:#151822;border:1px solid #6c63ff40;border-radius:14px;padding:1.5rem;margin-bottom:1.5rem}
+.price{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:#f0f2f8;line-height:1}
+.price span{font-size:16px;font-weight:400;color:#9ba3b8}
+.price-label{font-size:13px;color:#9ba3b8;margin-top:6px}
+.features{text-align:left;margin:1.25rem 0}
+.feat{display:flex;align-items:center;gap:8px;font-size:13px;color:#9ba3b8;padding:5px 0}
+.feat::before{content:'✓';color:#00d085;font-weight:700;flex-shrink:0}
+.btn{width:100%;height:50px;background:#6c63ff;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-bottom:.875rem}
+.btn:hover{background:#8b85ff;box-shadow:0 6px 24px rgba(108,99,255,.4)}
+.logout{font-size:13px;color:#5a6278;cursor:pointer;text-decoration:underline}
+.logout:hover{color:#9ba3b8}
+.msg{font-size:13px;color:#9ba3b8;margin-top:1rem}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo"><span class="ldot"></span>JobSphere</div>
+
+  <div class="expired-badge">
+    <h3>Your free trial has ended</h3>
+    <p>Subscribe now to continue accessing 1,500+ live jobs</p>
+  </div>
+
+  <div class="price-card">
+    <div class="price">₹59 <span>/ month</span></div>
+    <div class="price-label">Billed monthly · Cancel anytime</div>
+    <div class="features">
+      <div class="feat">1,500+ live jobs updated daily</div>
+      <div class="feat">India, Remote, USA, UK, AU, DE</div>
+      <div class="feat">Filter by city, state and category</div>
+      <div class="feat">Direct apply links</div>
+      <div class="feat">All future features included</div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="pay()">Pay ₹59 and continue</button>
+  <div><span class="logout" onclick="logout()">Logout</span></div>
+  <div class="msg" id="msg"></div>
+</div>
+
+<script>
+var token = localStorage.getItem('js_token');
+if (!token) { window.location.href = '/login.html'; }
+
+async function pay() {
+  var btn = document.querySelector('.btn');
+  btn.disabled = true; btn.textContent = 'Creating order…';
+  try {
+    var res = await fetch('/api/payment/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+      body: JSON.stringify({ amount: 5900 })
+    });
+    var order = await res.json();
+    if (!res.ok) { document.getElementById('msg').textContent = order.error||'Error'; btn.disabled=false; btn.textContent='Pay ₹59 and continue'; return; }
+
+    var options = {
+      key: order.key,
+      amount: order.amount,
+      currency: 'INR',
+      name: 'JobSphere',
+      description: 'Monthly subscription',
+      order_id: order.id,
+      handler: async function(response) {
+        btn.textContent = 'Verifying payment…';
+        var vres = await fetch('/api/payment/verify', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+          body: JSON.stringify(response)
+        });
+        var vdata = await vres.json();
+        if (vdata.ok) {
+          document.getElementById('msg').textContent = '✅ Payment successful! Redirecting…';
+          setTimeout(function(){ window.location.href = '/'; }, 1500);
+        } else {
+          document.getElementById('msg').textContent = '❌ Payment verification failed. Contact support.';
+          btn.disabled=false; btn.textContent='Pay ₹59 and continue';
+        }
+      },
+      prefill: { email: order.email },
+      theme: { color: '#6c63ff' },
+      modal: { ondismiss: function(){ btn.disabled=false; btn.textContent='Pay ₹59 and continue'; } }
+    };
+    var rzp = new Razorpay(options);
+    rzp.open();
+  } catch(e) {
+    document.getElementById('msg').textContent = 'Error: '+e.message;
+    btn.disabled=false; btn.textContent='Pay ₹59 and continue';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('js_token');
+  window.location.href = '/login.html';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobSphere — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#07090f;color:#f0f2f8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.box{background:#0e1118;border:1px solid #ffffff10;border-radius:20px;padding:2.5rem;width:100%;max-width:420px}
+.logo{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#f0f2f8;display:flex;align-items:center;gap:8px;margin-bottom:2rem;justify-content:center}
+.ldot{width:8px;height:8px;border-radius:50%;background:#6c63ff;box-shadow:0 0 12px #6c63ff}
+.tabs{display:flex;gap:4px;background:#151822;border-radius:10px;padding:4px;margin-bottom:1.75rem}
+.tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:500;border-radius:7px;cursor:pointer;color:#9ba3b8;transition:all .2s}
+.tab.on{background:#6c63ff;color:#fff}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:12px;color:#9ba3b8;margin-bottom:5px;font-weight:500}
+.field input{width:100%;height:44px;background:#151822;border:1px solid #ffffff18;border-radius:10px;padding:0 14px;font-size:14px;color:#f0f2f8;outline:none;font-family:'DM Sans',sans-serif;transition:all .2s}
+.field input:focus{border-color:#6c63ff40;box-shadow:0 0 0 3px #6c63ff15}
+.btn{width:100%;height:46px;background:#6c63ff;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:.5rem;transition:all .2s}
+.btn:hover{background:#8b85ff}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.err{background:#f8717114;border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;margin-bottom:1rem;display:none}
+.err.show{display:block}
+.trial-badge{background:#00d08514;border:1px solid #00d08330;border-radius:10px;padding:12px 16px;text-align:center;margin-bottom:1.5rem}
+.trial-badge p{font-size:13px;color:#00d085;font-weight:500}
+.trial-badge span{font-size:12px;color:#9ba3b8}
+.divider{text-align:center;font-size:12px;color:#5a6278;margin:1.25rem 0}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo"><span class="ldot"></span>JobSphere</div>
+
+  <div class="trial-badge">
+    <p>7-day free trial</p>
+    <span>Then just ₹59/month — cancel anytime</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('login')">Login</div>
+    <div class="tab" onclick="switchTab('signup')">Sign Up</div>
+  </div>
+
+  <div id="err" class="err"></div>
+
+  <div id="login-form">
+    <div class="field"><label>Email</label><input type="email" id="l-email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="l-pass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn" onclick="doLogin()">Login</button>
+  </div>
+
+  <div id="signup-form" style="display:none">
+    <div class="field"><label>Email</label><input type="email" id="s-email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="s-pass" placeholder="Create a password" onkeydown="if(event.key==='Enter')doSignup()"></div>
+    <button class="btn" onclick="doSignup()">Start Free Trial</button>
+    <div class="divider">No credit card required</div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t,i){ t.classList.toggle('on', (i===0&&tab==='login')||(i===1&&tab==='signup')); });
+  document.getElementById('login-form').style.display = tab==='login'?'block':'none';
+  document.getElementById('signup-form').style.display = tab==='signup'?'block':'none';
+  document.getElementById('err').classList.remove('show');
+}
+
+function showErr(msg) {
+  var e = document.getElementById('err');
+  e.textContent = msg;
+  e.classList.add('show');
+}
+
+function setToken(token) {
+  localStorage.setItem('js_token', token);
+}
+
+async function doLogin() {
+  var email = document.getElementById('l-email').value.trim();
+  var pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) { showErr('Please enter email and password'); return; }
+  var btn = document.querySelector('#login-form .btn');
+  btn.disabled = true; btn.textContent = 'Logging in…';
+  try {
+    var res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password: pass}) });
+    var data = await res.json();
+    if (!res.ok) { showErr(data.error || 'Login failed'); btn.disabled=false; btn.textContent='Login'; return; }
+    setToken(data.token);
+    window.location.href = '/';
+  } catch(e) { showErr('Connection error'); btn.disabled=false; btn.textContent='Login'; }
+}
+
+async function doSignup() {
+  var email = document.getElementById('s-email').value.trim();
+  var pass  = document.getElementById('s-pass').value;
+  if (!email || !pass) { showErr('Please enter email and password'); return; }
+  if (pass.length < 6) { showErr('Password must be at least 6 characters'); return; }
+  var btn = document.querySelector('#signup-form .btn');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    var res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password: pass}) });
+    var data = await res.json();
+    if (!res.ok) { showErr(data.error || 'Signup failed'); btn.disabled=false; btn.textContent='Start Free Trial'; return; }
+    setToken(data.token);
+    window.location.href = '/';
+  } catch(e) { showErr('Connection error'); btn.disabled=false; btn.textContent='Start Free Trial'; }
+}
+
+// If already logged in, redirect
+if (localStorage.getItem('js_token')) {
+  fetch('/api/auth/check', { headers:{'Authorization':'Bearer '+localStorage.getItem('js_token')} })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if(d.ok) window.location.href='/'; })
+    .catch(function(){});
+}
+</script>
+</body>
+</html>

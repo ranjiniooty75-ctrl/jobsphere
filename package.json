@@ -1,13 +1,18 @@
 {
   "name": "jobsphere",
-  "version": "1.0.0",
-  "description": "Global job board aggregating Himalayas, RemoteOK and Remotive",
+  "version": "2.0.0",
+  "description": "Global job board with trial and payment",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "razorpay": "^2.9.0",
+    "nodemailer": "^6.9.0"
   },
   "engines": { "node": ">=18" },
-  "keywords": ["jobs", "remote", "job-board"],
   "license": "MIT"
 }
