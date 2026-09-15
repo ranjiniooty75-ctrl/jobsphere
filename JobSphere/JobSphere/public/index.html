@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobSphere — Global Jobs</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#07090f;color:#f0f2f8;min-height:100vh}
+nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid #ffffff10;padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#f0f2f8;display:flex;align-items:center;gap:7px}
+.ldot{width:7px;height:7px;border-radius:50%;background:#6c63ff;box-shadow:0 0 10px #6c63ff}
+.nlinks a{font-size:13px;color:#9ba3b8;text-decoration:none;margin-left:1.5rem}
+.nlinks a:hover{color:#f0f2f8}
+.live{font-size:11px;font-weight:600;padding:3px 12px;border-radius:999px;background:#00d08514;border:1px solid #00d08330;color:#00d085}
+.srch{background:rgba(7,9,15,.94);border-bottom:1px solid #ffffff10;padding:.75rem 2rem;display:flex;gap:8px;flex-wrap:wrap}
+.srch input{flex:2;min-width:200px;height:42px;background:#151822;border:1px solid #ffffff18;border-radius:10px;padding:0 12px 0 36px;font-size:14px;color:#f0f2f8;outline:none;font-family:'DM Sans',sans-serif}
+.srch input:focus{border-color:#6c63ff40;background:#1c2030}
+.srch-wrap{flex:2;min-width:200px;position:relative}
+.srch-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#5a6278;pointer-events:none}
+.srch select{height:42px;background:#151822;border:1px solid #ffffff18;border-radius:10px;padding:0 11px;font-size:13px;color:#9ba3b8;outline:none;cursor:pointer;min-width:130px;font-family:'DM Sans',sans-serif}
+.srch button{height:42px;padding:0 24px;background:#6c63ff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+.srch button:hover{background:#8b85ff}
+.lay{max-width:1280px;margin:0 auto;padding:1.25rem 2rem 4rem;display:grid;grid-template-columns:220px 1fr;gap:1.5rem}
+.sdb{display:flex;flex-direction:column;gap:8px}
+.fc{background:#0e1118;border:1px solid #ffffff0f;border-radius:14px;padding:1rem}
+.fh{font-size:10px;font-weight:700;color:#5a6278;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.625rem}
+.fo{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-radius:7px;cursor:pointer;font-size:12px;color:#9ba3b8;border:none;background:transparent;text-align:left;width:100%;font-family:'DM Sans',sans-serif;transition:all .12s}
+.fo:hover{background:#1c2030;color:#f0f2f8}
+.fo.on{background:#6c63ff18;color:#8b85ff;outline:1px solid #6c63ff40}
+.fn{font-size:10px;background:#1c2030;color:#5a6278;padding:1px 6px;border-radius:999px}
+.fo.on .fn{background:rgba(108,99,255,.2);color:#8b85ff}
+.ctabs{display:flex;gap:5px;margin-bottom:1rem;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.ctabs::-webkit-scrollbar{display:none}
+.ct{font-size:12px;font-weight:500;padding:5px 13px;border-radius:999px;border:1px solid #ffffff0f;background:transparent;color:#5a6278;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.ct:hover{border-color:#ffffff18;color:#9ba3b8}
+.ct.on{background:#6c63ff18;border-color:#6c63ff40;color:#8b85ff}
+.ft{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.fct{font-size:13px;color:#9ba3b8}
+.fct strong{color:#f0f2f8;font-weight:600}
+.cards{display:flex;flex-direction:column;gap:9px}
+.jc{background:#0e1118;border:1px solid #ffffff0f;border-radius:14px;padding:1.125rem 1.25rem;cursor:pointer;transition:all .2s}
+.jc:hover{border-color:#ffffff18;transform:translateY(-1px);box-shadow:0 6px 32px rgba(0,0,0,.4)}
+.jc.hot{border-left:2px solid #6c63ff}
+.jtop{display:flex;gap:11px;align-items:flex-start;margin-bottom:9px}
+.jlog{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;flex-shrink:0;border:1px solid #ffffff0f;overflow:hidden}
+.jinf{flex:1;min-width:0}
+.jtit{font-size:14px;font-weight:600;color:#f0f2f8;line-height:1.3;font-family:'Syne',sans-serif;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jco{font-size:12px;color:#9ba3b8}
+.jmet{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.jm{font-size:11px;color:#5a6278}
+.jtgs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.jtg{font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid #ffffff0f;color:#5a6278;background:#1c2030}
+.jtg.r{background:#00d08514;border-color:#00d08330;color:#00d085}
+.jtg.in{background:#f59e0b14;border-color:rgba(245,158,11,.3);color:#f59e0b}
+.jfot{display:flex;align-items:center;justify-content:space-between;padding-top:9px;border-top:1px solid #ffffff0f;flex-wrap:wrap;gap:7px}
+.jsal{font-size:13px;font-weight:600;color:#f0f2f8}
+.jsal.nd{font-size:11px;font-weight:400;color:#5a6278}
+.jact{display:flex;gap:5px}
+.bsv{font-size:11px;font-weight:500;padding:5px 11px;border:1px solid #ffffff0f;border-radius:7px;background:transparent;color:#5a6278;cursor:pointer;font-family:'DM Sans',sans-serif}
+.bsv:hover{border-color:#ffffff18;color:#f0f2f8}
+.bap{font-size:11px;font-weight:600;padding:5px 14px;border-radius:7px;background:#6c63ff;color:#fff;text-decoration:none;display:inline-block;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.bap:hover{background:#8b85ff}
+.jexp{display:none;margin-top:9px;padding-top:9px;border-top:1px solid #ffffff0f}
+.jexp.open{display:block}
+.ext{font-size:12px;color:#9ba3b8;line-height:1.7}
+.ldg{text-align:center;padding:4rem 2rem}
+.spin{width:32px;height:32px;border:2px solid #ffffff18;border-top-color:#6c63ff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ldg p{font-size:13px;color:#5a6278}
+.emp{text-align:center;padding:4rem 2rem}
+.emp h3{font-family:'Syne',sans-serif;font-size:1.3rem;color:#9ba3b8;margin-bottom:6px}
+.emp p{font-size:13px;color:#5a6278}
+.pag{display:flex;justify-content:center;gap:4px;margin-top:1.5rem;flex-wrap:wrap}
+.pb{min-width:30px;height:30px;padding:0 6px;border-radius:7px;border:1px solid #ffffff0f;background:#151822;color:#5a6278;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;justify-content:center}
+.pb:hover:not([disabled]){border-color:#ffffff18;color:#f0f2f8}
+.pb.on{background:#6c63ff;color:#fff;border-color:#6c63ff}
+.pb[disabled]{opacity:.3;cursor:not-allowed}
+.src-r{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #ffffff0f;font-size:11px;color:#9ba3b8}
+.src-r:last-child{border:none}
+.src-cnt{font-size:10px;padding:1px 6px;border-radius:999px;background:#00d08514;border:1px solid #00d08330;color:#00d085}
+footer{background:#0e1118;border-top:1px solid #ffffff0f;padding:2rem;text-align:center}
+footer p{font-size:12px;color:#5a6278}
+.toast{position:fixed;bottom:20px;right:20px;background:#1c2030;border:1px solid #ffffff18;color:#f0f2f8;font-size:12px;padding:10px 16px;border-radius:10px;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+@media(max-width:900px){.lay{grid-template-columns:1fr}.sdb{display:grid;grid-template-columns:1fr 1fr;gap:8px}.nlinks{display:none}}
+@media(max-width:600px){nav,.srch,.lay,footer{padding-left:1rem;padding-right:1rem}.sdb{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="ldot"></span>JobSphere</div>
+  <div class="nlinks">
+    <a href="#" onclick="quickCountry('India')">India</a>
+    <a href="#" onclick="quickCountry('Remote')">Remote</a>
+    <a href="#" onclick="quickCountry('US')">USA</a>
+    <a href="#" onclick="quickCountry('GB')">UK</a>
+  </div>
+  <span class="live">Live</span>
+</nav>
+
+<div class="srch">
+  <div class="srch-wrap">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="qi" placeholder="Job title, skill, company..." onkeydown="if(event.key==='Enter')doSearch()">
+  </div>
+  <select id="country-sel" onchange="doSearch()">
+    <option value="">All countries</option>
+    <option value="India">India</option>
+    <option value="Remote">Remote</option>
+    <option value="US">USA</option>
+    <option value="GB">UK</option>
+    <option value="AU">Australia</option>
+    <option value="DE">Germany</option>
+    <option value="CA">Canada</option>
+  </select>
+  <select id="src-sel" onchange="doSearch()">
+    <option value="">All sources</option>
+    <option value="Himalayas">Himalayas</option>
+    <option value="RemoteOK">RemoteOK</option>
+    <option value="Remotive">Remotive</option>
+    <option value="Jobicy">Jobicy</option>
+    <option value="The Muse">The Muse</option>
+    <option value="Arbeitnow">Arbeitnow</option>
+    <option value="Adzuna India">Adzuna India</option>
+    <option value="Adzuna">Adzuna Global</option>
+  </select>
+  <select id="days-sel" onchange="doSearch()">
+    <option value="">Any time</option>
+    <option value="1">Last 24h</option>
+    <option value="7">Last 7 days</option>
+    <option value="30">Last 30 days</option>
+  </select>
+  <button onclick="doSearch()">Search</button>
+</div>
+
+<div class="lay">
+  <aside class="sdb">
+    <div class="fc">
+      <div class="fh">Category</div>
+      <button class="fo on" data-c="" onclick="setCat(this,'')">All <span class="fn" id="fn-all">-</span></button>
+      <button class="fo" data-c="software" onclick="setCat(this,'software')">Engineering <span class="fn" id="fn-software">-</span></button>
+      <button class="fo" data-c="testing" onclick="setCat(this,'testing')">QA / Testing <span class="fn" id="fn-testing">-</span></button>
+      <button class="fo" data-c="data" onclick="setCat(this,'data')">Data / AI <span class="fn" id="fn-data">-</span></button>
+      <button class="fo" data-c="devops" onclick="setCat(this,'devops')">DevOps / Cloud <span class="fn" id="fn-devops">-</span></button>
+      <button class="fo" data-c="design" onclick="setCat(this,'design')">Design / UX <span class="fn" id="fn-design">-</span></button>
+      <button class="fo" data-c="product" onclick="setCat(this,'product')">Product <span class="fn" id="fn-product">-</span></button>
+      <button class="fo" data-c="marketing" onclick="setCat(this,'marketing')">Marketing <span class="fn" id="fn-marketing">-</span></button>
+      <button class="fo" data-c="support" onclick="setCat(this,'support')">Support <span class="fn" id="fn-support">-</span></button>
+      <button class="fo" data-c="sales" onclick="setCat(this,'sales')">Sales <span class="fn" id="fn-sales">-</span></button>
+      <button class="fo" data-c="finance" onclick="setCat(this,'finance')">Finance <span class="fn" id="fn-finance">-</span></button>
+      <button class="fo" data-c="hr" onclick="setCat(this,'hr')">HR / Recruit <span class="fn" id="fn-hr">-</span></button>
+      <button class="fo" data-c="other" onclick="setCat(this,'other')">Other <span class="fn" id="fn-other">-</span></button>
+    </div>
+    <div class="fc">
+      <div class="fh">Sources</div>
+      <div id="src-rows"></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="ft">
+      <div class="fct" id="fct">Loading jobs...</div>
+      <select id="sort-sel" onchange="doSearch()" style="height:30px;background:#151822;border:1px solid #ffffff0f;border-radius:7px;padding:0 8px;font-size:11px;color:#9ba3b8;outline:none;cursor:pointer;font-family:'DM Sans',sans-serif">
+        <option value="date">Most recent</option>
+        <option value="salary">Has salary</option>
+      </select>
+    </div>
+    <div class="ctabs">
+      <button class="ct on" onclick="qcat(this,'')">All</button>
+      <button class="ct" onclick="qcat(this,'software')">Engineering</button>
+      <button class="ct" onclick="qcat(this,'testing')">QA & Testing</button>
+      <button class="ct" onclick="qcat(this,'data')">Data / AI</button>
+      <button class="ct" onclick="qcat(this,'devops')">DevOps</button>
+      <button class="ct" onclick="qcat(this,'design')">Design</button>
+      <button class="ct" onclick="qcat(this,'product')">Product</button>
+      <button class="ct" onclick="qcat(this,'marketing')">Marketing</button>
+      <button class="ct" onclick="qcat(this,'support')">Support</button>
+      <button class="ct" onclick="qcat(this,'sales')">Sales</button>
+      <button class="ct" onclick="qcat(this,'hr')">HR</button>
+    </div>
+    <div id="ldg" class="ldg"><div class="spin"></div><p>Fetching live jobs...</p></div>
+    <div id="cards" class="cards"></div>
+    <div id="emp" class="emp" style="display:none"><h3>No results</h3><p>Try different keywords or clear filters.</p></div>
+    <div class="pag" id="pag"></div>
+  </main>
+</div>
+
+<footer><p>JobSphere — Himalayas · RemoteOK · Remotive · Jobicy · The Muse · Arbeitnow · Adzuna</p></footer>
+<div class="toast" id="toast"></div>
+
+<script>
+var CAT = '', PG = 1;
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function dAgo(d) {
+  try { return Math.floor((Date.now() - new Date(d)) / 86400000); } catch(e) { return 999; }
+}
+
+function pLbl(d) {
+  var n = dAgo(d);
+  if (n === 0) return 'Today';
+  if (n === 1) return 'Yesterday';
+  if (n < 7) return n + 'd ago';
+  if (n < 30) return Math.floor(n/7) + 'w ago';
+  return Math.floor(n/30) + 'mo ago';
+}
+
+var LBGS = ['rgba(108,99,255,.18)','rgba(0,208,133,.15)','rgba(240,98,146,.15)','rgba(245,158,11,.15)','rgba(96,165,250,.15)','rgba(167,139,250,.15)'];
+var LTXS = ['#8b85ff','#00d085','#f06292','#f59e0b','#60a5fa','#a78bfa'];
+var SRC_C = {Himalayas:'#6c63ff',RemoteOK:'#00d085',Remotive:'#f59e0b',Jobicy:'#f06292','The Muse':'#60a5fa',Arbeitnow:'#00d085','Adzuna India':'#f59e0b',Adzuna:'#f59e0b'};
+
+function lclr(s) {
+  var i = (s||'?').charCodeAt(0) % LBGS.length;
+  return {bg: LBGS[i], c: LTXS[i]};
+}
+
+function ini(s) {
+  return (s||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase() || '?';
+}
+
+function toast(m) {
+  var t = document.getElementById('toast');
+  t.textContent = m;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+
+function buildParams(page) {
+  var p = 'page=' + (page||1) + '&per=15';
+  var q = document.getElementById('qi').value.trim();
+  if (q) p += '&q=' + encodeURIComponent(q);
+  var country = document.getElementById('country-sel').value;
+  if (country) p += '&country=' + encodeURIComponent(country);
+  var src = document.getElementById('src-sel').value;
+  if (src) p += '&source=' + encodeURIComponent(src);
+  var days = document.getElementById('days-sel').value;
+  if (days) p += '&days=' + days;
+  var sort = document.getElementById('sort-sel').value;
+  if (sort) p += '&sort=' + sort;
+  if (CAT) p += '&cat=' + CAT;
+  return p;
+}
+
+function doLoad(page) {
+  PG = page || 1;
+  document.getElementById('ldg').style.display = 'block';
+  document.getElementById('cards').innerHTML = '';
+  document.getElementById('emp').style.display = 'none';
+  document.getElementById('pag').innerHTML = '';
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/api/jobs?' + buildParams(PG), true);
+  xhr.onload = function() {
+    document.getElementById('ldg').style.display = 'none';
+    if (xhr.status === 200) {
+      try {
+        var data = JSON.parse(xhr.responseText);
+        renderJobs(data);
+        updateStats(data);
+      } catch(e) {
+        document.getElementById('fct').innerHTML = 'Parse error: ' + e.message;
+      }
+    } else {
+      document.getElementById('fct').innerHTML = 'Server error: ' + xhr.status;
+    }
+  };
+  xhr.onerror = function() {
+    document.getElementById('ldg').style.display = 'none';
+    document.getElementById('fct').innerHTML = 'Connection error - is server running?';
+  };
+  xhr.send();
+}
+
+function renderJobs(data) {
+  var fc = document.getElementById('fct');
+  var cards = document.getElementById('cards');
+  var emp = document.getElementById('emp');
+  var pag = document.getElementById('pag');
+
+  if (!data.jobs || data.jobs.length === 0) {
+    emp.style.display = 'block';
+    fc.innerHTML = 'No results found';
+    return;
+  }
+
+  fc.innerHTML = '<strong>' + data.total.toLocaleString() + '</strong> jobs found';
+
+  var html = '';
+  for (var i = 0; i < data.jobs.length; i++) {
+    var j = data.jobs[i];
+    var da = dAgo(j.posted);
+    var hot = da <= 2;
+    var isnew = da <= 7 && !hot;
+    var L = lclr(j.company);
+    var isIndia = j._country === 'India';
+    var srcColor = SRC_C[j.source] || '#5a6278';
+
+    var badge = '';
+    if (hot) badge = '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#6c63ff18;border:1px solid #6c63ff40;color:#8b85ff">HOT</span>';
+    else if (isnew) badge = '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#f59e0b14;border:1px solid rgba(245,158,11,.3);color:#f59e0b">NEW</span>';
+    else badge = '<span style="font-size:10px;color:#5a6278;white-space:nowrap;flex-shrink:0">' + pLbl(j.posted) + '</span>';
+
+    var logoHtml = j.logo ? '<img src="' + esc(j.logo) + '" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:9px;background:#fff;padding:2px" onerror="this.style.display=\'none\'">' : '<span style="color:' + L.c + '">' + esc(ini(j.company)) + '</span>';
+
+    var tags = (j.tags||[]).slice(0,4).map(function(t){ return '<span class="jtg">' + esc(t) + '</span>'; }).join('');
+
+    html += '<article class="jc' + (hot?' hot':'') + '" onclick="togExp(\'' + esc(j.id) + '\')">';
+    html += '<div class="jtop">';
+    html += '<div class="jlog" style="background:' + L.bg + '">' + logoHtml + '</div>';
+    html += '<div class="jinf"><div class="jtit" title="' + esc(j.title) + '">' + esc(j.title) + '</div><div class="jco">' + esc(j.company||'Company') + '</div></div>';
+    html += badge;
+    html += '</div>';
+    html += '<div class="jmet"><span class="jm">' + esc(j.location) + '</span><span class="jm">' + pLbl(j.posted) + '</span>';
+    if (j.type) html += '<span class="jm">' + esc(j.type) + '</span>';
+    html += '<span class="jm" style="color:' + srcColor + '">' + esc(j.source) + '</span></div>';
+    html += '<div class="jtgs">';
+    if (j.remote) html += '<span class="jtg r">Remote</span>';
+    if (isIndia) html += '<span class="jtg in">India</span>';
+    html += tags + '</div>';
+    html += '<div class="jfot">';
+    html += '<div class="' + (j.salary?'jsal':'jsal nd') + '">' + esc(j.salary||'Salary not listed') + '</div>';
+    html += '<div class="jact"><button class="bsv" onclick="event.stopPropagation();toast(\'Saved!\')">Save</button>';
+    html += '<a class="bap" href="' + esc(j.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">Apply</a></div>';
+    html += '</div>';
+    html += '<div class="jexp" id="jx-' + esc(j.id) + '"><div class="ext">' + esc((j.desc||'').substring(0,400)) + '</div></div>';
+    html += '</article>';
+  }
+  cards.innerHTML = html;
+
+  // Pagination
+  var pages = data.pages, page = data.page;
+  if (pages > 1) {
+    var ph = '';
+    ph += '<button class="pb" onclick="doLoad(' + (page-1) + ')" ' + (page===1?'disabled':'') + '>&#8249;</button>';
+    var s = Math.max(1, page-2), en = Math.min(pages, page+2);
+    if (s > 1) ph += '<button class="pb" onclick="doLoad(1)">1</button>';
+    for (var p = s; p <= en; p++) ph += '<button class="pb ' + (p===page?'on':'') + '" onclick="doLoad(' + p + ')">' + p + '</button>';
+    if (en < pages) ph += '<button class="pb" onclick="doLoad(' + pages + ')">' + pages + '</button>';
+    ph += '<button class="pb" onclick="doLoad(' + (page+1) + ')" ' + (page===pages?'disabled':'') + '>&#8250;</button>';
+    pag.innerHTML = ph;
+  }
+}
+
+function updateStats(data) {
+  var s = data.sources || {};
+  var cats = data.cats || {};
+  var allCats = ['all','software','testing','data','devops','design','product','marketing','support','sales','finance','hr','other'];
+  allCats.forEach(function(c) {
+    var el = document.getElementById('fn-' + c);
+    if (el) el.textContent = c === 'all' ? Object.values(cats).reduce(function(a,b){return a+b;},0) : (cats[c]||0);
+  });
+  var rows = '';
+  Object.entries(s).forEach(function(pair) {
+    var k = pair[0], v = pair[1];
+    if (v > 0) rows += '<div class="src-r"><span>' + k + '</span><span class="src-cnt">' + v + '</span></div>';
+  });
+  document.getElementById('src-rows').innerHTML = rows || '<div class="src-r" style="color:#5a6278">Loading...</div>';
+}
+
+function togExp(id) {
+  var el = document.getElementById('jx-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+function doSearch() { doLoad(1); }
+
+function setCat(btn, c) {
+  CAT = c;
+  document.querySelectorAll('.sdb .fo').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  doLoad(1);
+}
+
+function qcat(btn, c) {
+  CAT = c;
+  document.querySelectorAll('.ct').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  document.querySelectorAll('.sdb .fo').forEach(function(b){ b.classList.toggle('on', b.dataset.c === c); });
+  doLoad(1);
+}
+
+function quickCountry(c) {
+  document.getElementById('country-sel').value = c;
+  doSearch();
+}
+
+// Boot - use XMLHttpRequest, no template literals, no fancy code
+window.onload = function() { doLoad(1); };
+</script>
+</body>
+</html>
