@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobSphere — Resume Match</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#07090f;color:#f0f2f8;min-height:100vh}
+nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid #ffffff10;padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#f0f2f8;display:flex;align-items:center;gap:7px;text-decoration:none}
+.ldot{width:7px;height:7px;border-radius:50%;background:#6c63ff;box-shadow:0 0 10px #6c63ff}
+.nav-r{display:flex;gap:16px;align-items:center}
+.nav-r a{font-size:13px;color:#9ba3b8;text-decoration:none}
+.nav-r a:hover{color:#f0f2f8}
+.nav-r a.active{color:#8b85ff;font-weight:500}
+.hero{max-width:900px;margin:0 auto;padding:3rem 2rem 1.5rem;text-align:center}
+.h1{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.875rem}
+.gr{background:linear-gradient(120deg,#6c63ff,#f06292);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{font-size:15px;color:#9ba3b8;line-height:1.7;font-weight:300;max-width:540px;margin:0 auto}
+.wrap{max-width:900px;margin:0 auto;padding:1.5rem 2rem 4rem}
+
+/* Upload zone */
+.upload-zone{border:2px dashed #6c63ff40;border-radius:16px;padding:2.5rem;text-align:center;cursor:pointer;transition:all .2s;background:#0e1118;margin-bottom:1.5rem;position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:#6c63ff;background:#6c63ff08}
+.upload-zone.has-file{border-color:#00d085;border-style:solid;background:#00d08508}
+.upload-icon{font-size:2.5rem;margin-bottom:.875rem;color:#6c63ff}
+.upload-zone h3{font-family:'Syne',sans-serif;font-size:1.125rem;font-weight:700;color:#f0f2f8;margin-bottom:.375rem}
+.upload-zone p{font-size:13px;color:#9ba3b8}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-name{font-size:13px;color:#00d085;font-weight:500;margin-top:.5rem}
+
+/* Text paste option */
+.or-divider{text-align:center;font-size:12px;color:#5a6278;margin:1rem 0;position:relative}
+.or-divider::before,.or-divider::after{content:'';position:absolute;top:50%;width:45%;height:1px;background:#ffffff10}
+.or-divider::before{left:0}.or-divider::after{right:0}
+textarea#resume-text{width:100%;height:180px;background:#0e1118;border:1px solid #ffffff18;border-radius:12px;padding:14px;font-size:13px;color:#f0f2f8;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;line-height:1.6}
+textarea#resume-text:focus{border-color:#6c63ff40;background:#151822}
+textarea#resume-text::placeholder{color:#5a6278}
+
+/* Analyze button */
+.btn-analyze{width:100%;height:52px;background:linear-gradient(135deg,#6c63ff,#8b85ff);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:1.25rem;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-analyze:hover{box-shadow:0 6px 28px rgba(108,99,255,.45);transform:translateY(-1px)}
+.btn-analyze:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+/* Profile card */
+.profile-card{background:#0e1118;border:1px solid #6c63ff30;border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;display:none}
+.profile-card h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#8b85ff;margin-bottom:.875rem;text-transform:uppercase;letter-spacing:.05em}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.profile-item{background:#151822;border-radius:8px;padding:.75rem}
+.profile-label{font-size:10px;font-weight:700;color:#5a6278;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.profile-val{font-size:13px;color:#f0f2f8;line-height:1.5}
+.skills-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.skill-tag{font-size:11px;padding:2px 9px;border-radius:999px;background:#6c63ff18;border:1px solid #6c63ff30;color:#8b85ff}
+
+/* Results */
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.results-title{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:#f0f2f8}
+.results-sub{font-size:13px;color:#9ba3b8}
+.job-cards{display:flex;flex-direction:column;gap:10px}
+.jc{background:#0e1118;border:1px solid #ffffff0f;border-radius:14px;padding:1.125rem 1.25rem;transition:all .2s}
+.jc:hover{border-color:#ffffff18;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.jc-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.jlogo{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;flex-shrink:0;border:1px solid #ffffff0f;overflow:hidden}
+.jinf{flex:1;min-width:0}
+.jtit{font-size:14px;font-weight:600;color:#f0f2f8;font-family:'Syne',sans-serif;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jco{font-size:12px;color:#9ba3b8}
+.score-badge{flex-shrink:0;text-align:center}
+.score-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;line-height:1}
+.score-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.score-high .score-num{color:#00d085}.score-high .score-lbl{color:#00d085}
+.score-mid .score-num{color:#f59e0b}.score-mid .score-lbl{color:#f59e0b}
+.score-low .score-num{color:#9ba3b8}.score-low .score-lbl{color:#9ba3b8}
+.jmet{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:9px}
+.jm{font-size:11px;color:#5a6278}
+.match-reasons{background:#151822;border-radius:8px;padding:9px 12px;margin-bottom:10px}
+.mr-label{font-size:10px;font-weight:700;color:#5a6278;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.mr-list{display:flex;flex-wrap:wrap;gap:4px}
+.mr-tag{font-size:11px;padding:2px 8px;border-radius:999px;background:#00d08514;border:1px solid #00d08330;color:#00d085}
+.jfot{display:flex;align-items:center;justify-content:space-between;padding-top:9px;border-top:1px solid #ffffff0f}
+.jsal{font-size:12px;color:#5a6278}.jsal.has{font-size:13px;font-weight:600;color:#f0f2f8}
+.bap{font-size:12px;font-weight:600;padding:6px 16px;border-radius:8px;background:#6c63ff;color:#fff;text-decoration:none;display:inline-block;transition:all .2s}
+.bap:hover{background:#8b85ff;box-shadow:0 4px 16px rgba(108,99,255,.5)}
+
+/* States */
+.analyzing{text-align:center;padding:3rem 2rem;display:none}
+.spin{width:40px;height:40px;border:3px solid #ffffff18;border-top-color:#6c63ff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.analyzing h3{font-family:'Syne',sans-serif;font-size:1.125rem;font-weight:700;color:#f0f2f8;margin-bottom:.5rem}
+.analyzing p{font-size:13px;color:#9ba3b8}
+.prog{height:4px;background:#ffffff10;border-radius:999px;margin:1.25rem auto;max-width:300px;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,#6c63ff,#8b85ff);border-radius:999px;width:0;transition:width .3s}
+.empty{text-align:center;padding:3rem 2rem;display:none}
+.empty h3{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;color:#9ba3b8;margin-bottom:.5rem}
+.empty p{font-size:13px;color:#5a6278}
+.err-box{background:#f8717114;border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#f87171;margin-bottom:1rem;display:none}
+footer{background:#0e1118;border-top:1px solid #ffffff0f;padding:1.5rem 2rem;text-align:center}
+footer p{font-size:12px;color:#5a6278}
+@media(max-width:600px){.h1{font-size:1.8rem}.profile-grid{grid-template-columns:1fr}.hero,.wrap{padding-left:1rem;padding-right:1rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><span class="ldot"></span>JobSphere</a>
+  <div class="nav-r">
+    <a href="/">All Jobs</a>
+    <a href="/resume.html" class="active">Resume Match</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1 class="h1">Find jobs that <span class="gr">match you</span></h1>
+  <p class="sub">Upload your resume — AI will score all 1,400+ live jobs by how well they match your skills and experience.</p>
+</div>
+
+<div class="wrap">
+  <div class="err-box" id="err"></div>
+
+  <!-- Upload -->
+  <div id="upload-section">
+    <div class="upload-zone" id="drop-zone">
+      <input type="file" id="resume-file" accept=".pdf,.doc,.docx,.txt" onchange="onFileSelect(this)">
+      <div class="upload-icon">📄</div>
+      <h3>Drop your resume here</h3>
+      <p>PDF, Word, or text file — max 5MB</p>
+      <div class="file-name" id="file-name" style="display:none"></div>
+    </div>
+
+    <div class="or-divider">or paste your resume text</div>
+
+    <textarea id="resume-text" placeholder="Paste your resume content here — skills, experience, education, job titles..."></textarea>
+
+    <div class="err-box" id="upload-err"></div>
+
+    <button class="btn-analyze" id="analyze-btn" onclick="analyze()">
+      <span>✨</span> Analyze &amp; Match Jobs
+    </button>
+  </div>
+
+  <!-- Analyzing state -->
+  <div class="analyzing" id="analyzing">
+    <div class="spin"></div>
+    <h3 id="prog-title">Reading your resume…</h3>
+    <p id="prog-sub">This takes about 15 seconds</p>
+    <div class="prog"><div class="prog-bar" id="prog-bar"></div></div>
+  </div>
+
+  <!-- Profile card -->
+  <div class="profile-card" id="profile-card">
+    <h3>Your profile extracted from resume</h3>
+    <div class="profile-grid">
+      <div class="profile-item">
+        <div class="profile-label">Job titles</div>
+        <div class="profile-val" id="p-titles">—</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-label">Experience</div>
+        <div class="profile-val" id="p-exp">—</div>
+      </div>
+      <div class="profile-item" style="grid-column:1/-1">
+        <div class="profile-label">Skills matched</div>
+        <div class="skills-list" id="p-skills"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-section" style="display:none">
+    <div class="results-header">
+      <div>
+        <div class="results-title" id="results-title">Top matches</div>
+        <div class="results-sub" id="results-sub"></div>
+      </div>
+      <button onclick="resetForm()" style="font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid #ffffff18;background:transparent;color:#9ba3b8;cursor:pointer;font-family:'DM Sans',sans-serif">Upload new resume</button>
+    </div>
+    <div class="job-cards" id="job-cards"></div>
+  </div>
+
+  <div class="empty" id="empty">
+    <h3>No strong matches found</h3>
+    <p>Try adding more skills or experience details to your resume text.</p>
+  </div>
+</div>
+
+<footer><p>JobSphere Resume Match — powered by Claude AI</p></footer>
+
+<script>
+var TOKEN = localStorage.getItem('js_token') || '';
+if(!TOKEN) window.location.href = '/login.html';
+function logout(){ localStorage.removeItem('js_token'); window.location.href='/login.html'; }
+
+var resumeText = '';
+var LBGS = ['rgba(108,99,255,.18)','rgba(0,208,133,.15)','rgba(240,98,146,.15)','rgba(245,158,11,.15)','rgba(96,165,250,.15)','rgba(167,139,250,.15)'];
+var LTXS = ['#8b85ff','#00d085','#f06292','#f59e0b','#60a5fa','#a78bfa'];
+function lclr(s){ var i=(s||'?').charCodeAt(0)%LBGS.length; return{bg:LBGS[i],c:LTXS[i]}; }
+function ini(s){ return(s||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase()||'?'; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Drag and drop
+var dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',function(){dz.classList.remove('drag');});
+dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('drag');var f=e.dataTransfer.files[0];if(f)processFile(f);});
+
+function onFileSelect(input){ if(input.files[0]) processFile(input.files[0]); }
+
+function processFile(file) {
+  if(file.size > 5*1024*1024){ showErr('File too large — max 5MB'); return; }
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-name').style.display = 'block';
+  dz.classList.add('has-file');
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var text = e.target.result;
+    // For PDF/docx — extract readable text (basic extraction)
+    if(file.name.endsWith('.pdf') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+      // Convert binary to text best effort
+      text = text.replace(/[^\x20-\x7E\n\r\t]/g,' ').replace(/\s+/g,' ').trim();
+    }
+    resumeText = text;
+    document.getElementById('resume-text').value = text.substring(0, 3000);
+  };
+  if(file.name.endsWith('.txt')) {
+    reader.readAsText(file);
+  } else {
+    reader.readAsBinaryString(file);
+  }
+}
+
+function showErr(msg){ var e=document.getElementById('upload-err'); e.textContent=msg; e.style.display='block'; }
+function hideErr(){ document.getElementById('upload-err').style.display='none'; }
+
+function setProgress(pct, title, sub) {
+  document.getElementById('prog-bar').style.width = pct+'%';
+  if(title) document.getElementById('prog-title').textContent = title;
+  if(sub) document.getElementById('prog-sub').textContent = sub;
+}
+
+async function analyze() {
+  hideErr();
+  var text = document.getElementById('resume-text').value.trim();
+  if(!text && !resumeText) { showErr('Please upload a resume file or paste your resume text.'); return; }
+  var finalText = text || resumeText;
+  if(finalText.length < 50) { showErr('Resume text is too short. Please add more details.'); return; }
+
+  // Show analyzing state
+  document.getElementById('upload-section').style.display = 'none';
+  document.getElementById('analyzing').style.display = 'block';
+  document.getElementById('results-section').style.display = 'none';
+  document.getElementById('empty').style.display = 'none';
+  document.getElementById('profile-card').style.display = 'none';
+
+  setProgress(10, 'Reading your resume…', 'Extracting skills and experience');
+
+  try {
+    // Step 1: Fetch all jobs
+    setProgress(20, 'Fetching live jobs…', 'Getting 1,400+ jobs from all sources');
+    var jobsRes = await fetch('/api/jobs?per=200', {
+      headers: { 'Authorization': 'Bearer '+TOKEN }
+    });
+    if(!jobsRes.ok) throw new Error('Failed to fetch jobs');
+    var jobsData = await jobsRes.json();
+    var allJobs = jobsData.jobs || [];
+
+    setProgress(40, 'Analyzing your resume with AI…', 'Claude AI is reading your skills and experience');
+
+    // Step 2: Call Claude API to extract profile and score jobs
+    var jobSummaries = allJobs.slice(0,150).map(function(j,i){
+      return i+': '+j.title+' at '+j.company+' ('+j.location+') — tags: '+(j.tags||[]).slice(0,5).join(', ');
+    }).join('\n');
+
+    var prompt = 'You are a job matching expert. Given this resume, extract a profile and score each job 0-100.\n\nRESUME:\n'+finalText.substring(0,2000)+'\n\nJOBS (index: title at company - tags):\n'+jobSummaries+'\n\nRespond with valid JSON only, no markdown:\n{"profile":{"titles":"comma-separated job titles","experience":"X years in field","topSkills":["skill1","skill2","skill3","skill4","skill5","skill6","skill7","skill8"]},"matches":[{"index":0,"score":85,"reasons":["skill1","skill2"]},...]}\n\nOnly include jobs with score >= 50. Max 30 matches. Sort by score descending.';
+
+    var claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    setProgress(75, 'Scoring jobs…', 'Ranking by match percentage');
+
+    var claudeData = await claudeRes.json();
+    var responseText = claudeData.content[0].text;
+
+    // Parse JSON
+    var jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('Could not parse AI response');
+    var result = JSON.parse(jsonMatch[0]);
+
+    setProgress(90, 'Building your matches…', 'Almost done!');
+
+    // Show profile
+    var profile = result.profile || {};
+    document.getElementById('p-titles').textContent = profile.titles || '—';
+    document.getElementById('p-exp').textContent = profile.experience || '—';
+    var skillsEl = document.getElementById('p-skills');
+    skillsEl.innerHTML = '';
+    (profile.topSkills || []).forEach(function(s) {
+      var span = document.createElement('span');
+      span.className = 'skill-tag';
+      span.textContent = s;
+      skillsEl.appendChild(span);
+    });
+    document.getElementById('profile-card').style.display = 'block';
+
+    // Build matched jobs list
+    var matches = result.matches || [];
+    var matchedJobs = matches.map(function(m) {
+      var job = allJobs[m.index];
+      return job ? Object.assign({}, job, {score: m.score, reasons: m.reasons||[]}) : null;
+    }).filter(Boolean);
+
+    setProgress(100, 'Done!', '');
+    await new Promise(function(r){setTimeout(r,500);});
+
+    document.getElementById('analyzing').style.display = 'none';
+
+    if(matchedJobs.length === 0) {
+      document.getElementById('empty').style.display = 'block';
+      return;
+    }
+
+    // Render results
+    document.getElementById('results-title').textContent = 'Top '+matchedJobs.length+' matches for you';
+    document.getElementById('results-sub').textContent = 'Ranked by AI match score from '+allJobs.length+' live jobs';
+    document.getElementById('results-section').style.display = 'block';
+
+    var html = '';
+    matchedJobs.forEach(function(j) {
+      var L = lclr(j.company);
+      var scoreClass = j.score >= 75 ? 'score-high' : j.score >= 55 ? 'score-mid' : 'score-low';
+      var logoHtml = j.logo ? '<img src="'+esc(j.logo)+'" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:8px;background:#fff;padding:2px" onerror="this.style.display=\'none\'">' : '<span style="color:'+L.c+'">'+esc(ini(j.company))+'</span>';
+      var reasonTags = (j.reasons||[]).slice(0,5).map(function(r){ return '<span class="mr-tag">'+esc(r)+'</span>'; }).join('');
+
+      html += '<div class="jc">';
+      html += '<div class="jc-top">';
+      html += '<div class="jlogo" style="background:'+L.bg+'">'+logoHtml+'</div>';
+      html += '<div class="jinf"><div class="jtit" title="'+esc(j.title)+'">'+esc(j.title)+'</div><div class="jco">'+esc(j.company||'Company')+'</div></div>';
+      html += '<div class="score-badge '+scoreClass+'"><div class="score-num">'+j.score+'%</div><div class="score-lbl">match</div></div>';
+      html += '</div>';
+      html += '<div class="jmet"><span class="jm">'+esc(j.location)+'</span><span class="jm">'+esc(j.source)+'</span>'+(j.type?'<span class="jm">'+esc(j.type)+'</span>':'')+'</div>';
+      if(reasonTags) {
+        html += '<div class="match-reasons"><div class="mr-label">Why it matches</div><div class="mr-list">'+reasonTags+'</div></div>';
+      }
+      html += '<div class="jfot"><div class="'+(j.salary?'jsal has':'jsal')+'">'+(j.salary?esc(j.salary):'Salary not listed')+'</div>';
+      html += '<a class="bap" href="'+esc(j.url)+'" target="_blank" rel="noopener">Apply now</a>';
+      html += '</div></div>';
+    });
+
+    document.getElementById('job-cards').innerHTML = html;
+
+  } catch(e) {
+    document.getElementById('analyzing').style.display = 'none';
+    document.getElementById('upload-section').style.display = 'block';
+    showErr('Error: '+e.message+'. Please try again.');
+    console.error(e);
+  }
+}
+
+function resetForm() {
+  document.getElementById('upload-section').style.display = 'block';
+  document.getElementById('results-section').style.display = 'none';
+  document.getElementById('empty').style.display = 'none';
+  document.getElementById('profile-card').style.display = 'none';
+  document.getElementById('resume-text').value = '';
+  document.getElementById('file-name').style.display = 'none';
+  document.getElementById('drop-zone').classList.remove('has-file');
+  document.getElementById('resume-file').value = '';
+  resumeText = '';
+  hideErr();
+}
+</script>
+</body>
+</html>
