@@ -272,24 +272,25 @@ const server=http.createServer(async(req,res)=>{
 
       const prompt='You are a job matching expert. Given this resume, extract a profile and score each job 0-100.\n\nRESUME:\n'+resumeText.substring(0,2000)+'\n\nJOBS (index: title at company - tags):\n'+jobSummaries+'\n\nRespond with valid JSON only, no markdown:\n{"profile":{"titles":"comma-separated job titles","experience":"X years in field","topSkills":["skill1","skill2","skill3","skill4","skill5","skill6","skill7","skill8"]},"matches":[{"index":0,"score":85,"reasons":["skill1","skill2"]},...]}\n\nOnly include jobs with score >= 50. Max 30 matches. Sort by score descending.';
 
-      const apiKey=process.env.ANTHROPIC_API_KEY||'';
-      if(!apiKey){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'ANTHROPIC_API_KEY not configured in Render environment variables'}));return;}
-      const claudeRes=await new Promise((resolve,reject)=>{
-        const body=JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]});
-        const req2=https.request({hostname:'api.anthropic.com',path:'/v1/messages',method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body),'x-api-key':apiKey,'anthropic-version':'2023-06-01'}},res2=>{
+      const groqKey=process.env.GROQ_API_KEY||'';
+      if(!groqKey){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'GROQ_API_KEY not configured. Get a free key at console.groq.com'}));return;}
+
+      const groqRes=await new Promise((resolve,reject)=>{
+        const body=JSON.stringify({model:'llama-3.1-8b-instant',max_tokens:2000,messages:[{role:'user',content:prompt}],temperature:0.1});
+        const req2=https.request({hostname:'api.groq.com',path:'/openai/v1/chat/completions',method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body),'Authorization':'Bearer '+groqKey}},res2=>{
           let raw='';res2.on('data',c=>raw+=c);res2.on('end',()=>{try{resolve(JSON.parse(raw));}catch(e){reject(e);}});
         });
-        req2.setTimeout(30000,()=>{req2.destroy();reject(new Error('Claude timeout'));});
+        req2.setTimeout(30000,()=>{req2.destroy();reject(new Error('Groq timeout'));});
         req2.on('error',reject);
         req2.write(body);req2.end();
       });
 
-      // Handle Claude API errors
-      if(claudeRes.error){throw new Error('Claude API: '+claudeRes.error.message);}
-      if(!claudeRes.content||!claudeRes.content[0]){throw new Error('Empty response from Claude: '+JSON.stringify(claudeRes).substring(0,200));}
-      const text=claudeRes.content[0].text;
+      // Handle Groq API errors
+      if(groqRes.error){throw new Error('Groq API: '+groqRes.error.message);}
+      if(!groqRes.choices||!groqRes.choices[0]){throw new Error('Empty response from Groq: '+JSON.stringify(groqRes).substring(0,200));}
+      const text=groqRes.choices[0].message.content;
       const jsonMatch=text.match(/\{[\s\S]*\}/);
-      if(!jsonMatch)throw new Error('No JSON in response: '+text.substring(0,200));
+      if(!jsonMatch)throw new Error('No JSON in response: '+text.substring(0,300));
       const result=JSON.parse(jsonMatch[0]);
 
       res.writeHead(200,{'Content-Type':'application/json'});
