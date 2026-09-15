@@ -270,7 +270,7 @@ const server=http.createServer(async(req,res)=>{
         return i+': '+j.title+' at '+j.company+' ('+j.location+') — tags: '+(j.tags||[]).slice(0,5).join(', ');
       }).join('\n');
 
-      const prompt='You are a job matching expert. Given this resume, extract a profile and score each job 0-100.\n\nRESUME:\n'+resumeText.substring(0,2000)+'\n\nJOBS (index: title at company - tags):\n'+jobSummaries+'\n\nRespond with valid JSON only, no markdown:\n{"profile":{"titles":"comma-separated job titles","experience":"X years in field","topSkills":["skill1","skill2","skill3","skill4","skill5","skill6","skill7","skill8"]},"matches":[{"index":0,"score":85,"reasons":["skill1","skill2"]},...]}\n\nOnly include jobs with score >= 50. Max 30 matches. Sort by score descending.';
+      const prompt='Return ONLY valid JSON, no explanation, no markdown.\nMatch this resume to jobs and score 0-100.\n\nRESUME:\n'+resumeText.substring(0,800)+'\n\nJOBS:\n'+jobSummaries+'\n\nJSON: {"profile":{"titles":"job titles","experience":"years","topSkills":["s1","s2","s3","s4","s5"]},"matches":[{"index":0,"score":80,"reasons":["r1","r2"]}]}\nOnly 50+. Max 20. Sort desc.';
 
       const groqKey=process.env.GROQ_API_KEY||'';
       if(!groqKey){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'GROQ_API_KEY not configured. Get a free key at console.groq.com'}));return;}
